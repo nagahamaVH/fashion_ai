@@ -29,7 +29,7 @@ def predict(image, model_name, device=None):
     labels = [dict_classes.get(x, x) for x in encoded_labels]
     info["labels"] = labels
     info["scores"] = raw_info["scores"].cpu().detach().numpy()
-    info["masks"] = raw_info["masks"].cpu().detach().numpy()
+    info["masks"] = raw_info["masks"].cpu().detach().numpy() * 255
 
     return info
 
@@ -40,6 +40,7 @@ if __name__ == "__main__":
     image_path = "../data/train/0a0f94b4e785bb2326dd1832303ce8de.jpg"
     # image_path = "lixo.jpeg"
     image = Image.open(image_path).convert('RGB')
+    image = image.resize((256, 256), resample=Image.BILINEAR)
     info = predict(image, "test_20epoch")
 
     plt.imshow(image)
@@ -47,7 +48,7 @@ if __name__ == "__main__":
 
     print(info)
 
-    detected_image = Image.fromarray(info['masks'][0, 0] * 255)
+    detected_image = Image.fromarray(info['masks'][0, 0])
     print(info["masks"].shape)
     plt.imshow(detected_image)
     plt.show()
