@@ -4,46 +4,10 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import DataLoader
-from torchvision.models.detection import fasterrcnn_resnet50_fpn
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from dataset import FashionDataset
-# from utils import get_train_transform, get_valid_transform
+from utils import get_transform
 from engine import train_step, eval_step, Averager
-
-import torchvision
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
-import torchvision.transforms as T
-      
-def get_instance_segmentation_model(num_classes):
-    # load an instance segmentation model pre-trained on COCO
-    model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True)
-
-    # get the number of input features for the classifier
-    in_features = model.roi_heads.box_predictor.cls_score.in_features
-    # replace the pre-trained head with a new one
-    model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
-
-    # now get the number of input features for the mask classifier
-    in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels
-    hidden_layer = 256
-    # and replace the mask predictor with a new one
-    model.roi_heads.mask_predictor = MaskRCNNPredictor(in_features_mask,
-                                                       hidden_layer,
-                                                       num_classes)
-
-    return model
-
-
-def get_transform(train):
-    transforms = []
-    # converts the image, a PIL image, into a PyTorch Tensor
-    transforms.append(T.ToTensor())
-    if train:
-        # during training, randomly flip the training images
-        # and ground-truth for data augmentation
-        transforms.append(T.RandomHorizontalFlip(0.5))
-    return T.Compose(transforms)
+from fasterrcnn_model import get_instance_segmentation_model
 
 
 def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
