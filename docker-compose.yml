@@ -15,6 +15,9 @@ services:
                         max-file: "5"
                         max-size: "200k"
         volumes:
+                # - ./data/attributes_table.csv:app/attributes_table.csv:ro
+                # - ./data/categories_table.csv:app/categories_table.csv:ro
+                # - ./data/segmentation_table.csv:app/segmentation_table.csv:ro
                 - ./db/create_tables.sql:/docker-entrypoint-initdb.d/10-create_tables.sql
                 - ./db/populate.sql:/docker-entrypoint-initdb.d/30-populate.sql
         ports:
@@ -40,11 +43,12 @@ services:
         build: ./engine
         env_file: wandb.env
         volumes:
-                - ./engine/src:app:src:ro
-                # - ./data/train.csv:app/data/train.csv:ro
-                # - ./data/label_descriptions.json:app/data/label_descriptions.json:ro
-                # - ./data/train:./app/data/train:ro
-                # - ./data/test:./app/data/test:ro
+                - ./engine/src:/app/src:ro
+                - ./engine/pretrained_models:/app/pretrained_models:rw
+                - ./data/train.csv:/app/data/train.csv:ro
+                - ./data/label_descriptions.json:/app/data/label_descriptions.json:ro
+                - ./data/train:/app/data/train:ro
+                - ./data/test:/app/data/test:ro
         depends_on:
                 - db
         runtime: nvidia

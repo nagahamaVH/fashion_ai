@@ -5,10 +5,10 @@ RUN apt-get install python3 python3-pip -y
 
 RUN python3 -m pip install pip -U
 
-# WORKDIR /
-# COPY requirements.txt /
-# RUN pip3 install --default-timeout=100 -r requirements.txt
+WORKDIR /
+COPY requirements.txt /
+RUN pip3 install --default-timeout=100 -r requirements.txt
 
 WORKDIR /app
 
-# CMD python3 ./src/api.py
+CMD python3 ./src/train.py

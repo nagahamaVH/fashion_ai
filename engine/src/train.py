@@ -19,11 +19,11 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
     if num_workers == -1:
         num_workers = os.cpu_count()
 
-    # data = pd.read_csv("../data/train.csv")
-    data = pd.read_csv("../data/train.csv", nrows=1000)
-    class_values = data["ClassId"].value_counts()
-    valid_classes = class_values[class_values > 30].index.tolist()
-    data = data.loc[data["ClassId"].isin(valid_classes), :].reset_index(drop=True)
+    data = pd.read_csv("./data/train.csv")
+    # data = pd.read_csv("./data/train.csv", nrows=1000)
+    # class_values = data["ClassId"].value_counts()
+    # valid_classes = class_values[class_values > 30].index.tolist()
+    # data = data.loc[data["ClassId"].isin(valid_classes), :].reset_index(drop=True)
 
     label_encoder = LabelEncoder()
     data['EncodedClass'] = label_encoder.fit_transform(data["ClassId"].values) + 1
@@ -38,7 +38,7 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
         train = data.loc[data["ImageId"].isin(train_id["ImageId"]), :].reset_index(drop=True)
         valid = data.loc[data["ImageId"].isin(valid_id["ImageId"]), :].reset_index(drop=True)
 
-        valid_dataset = FashionDataset("../data/train", valid, 256, 256, transforms=get_transform(train=False))
+        valid_dataset = FashionDataset("./data/train", valid, 256, 256, transforms=get_transform(train=False))
         valid_data_loader = DataLoader(
             valid_dataset,
             batch_size=batch_size,
@@ -48,7 +48,7 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
     else:
         train = data
 
-    train_dataset = FashionDataset("../data/train", train, 256, 256, transforms=get_transform(train=True))
+    train_dataset = FashionDataset("./data/train", train, 256, 256, transforms=get_transform(train=True))
     train_data_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
@@ -107,4 +107,4 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
 
 
 if __name__ == "__main__":
-    train(model_name="test_20epoch", num_epochs=2, use_wandb=False)
+    train(model_name="model_1", num_epochs=20, use_wandb=True)
