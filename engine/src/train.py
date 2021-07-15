@@ -19,9 +19,9 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
         num_workers = os.cpu_count()
 
     # data = pd.read_csv("../data/train.csv")
-    data = pd.read_csv("../data/train.csv", nrows=100)
+    data = pd.read_csv("../data/train.csv", nrows=1000)
     class_values = data["ClassId"].value_counts()
-    valid_classes = class_values[class_values > 10].index.tolist()
+    valid_classes = class_values[class_values > 30].index.tolist()
     data = data.loc[data["ClassId"].isin(valid_classes), :].reset_index(drop=True)
 
     data_id = data.drop_duplicates(["ImageId"])
@@ -89,9 +89,9 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
             else:
                 wandb.log({"train_loss": train_metrics["loss"]})
 
-    # torch.save(model, os.path.join("pretrained_models", model_name + ".pth"))
-    # pd.DataFrame(labels).to_csv(os.path.join(
-    #     "pretrained_models", model_name + ".csv"), header=False, index=False)
+    torch.save(model, os.path.join("pretrained_models", model_name + ".pth"))
+    pd.DataFrame(labels).to_csv(os.path.join(
+        "pretrained_models", model_name + ".csv"), header=False, index=False)
 
     if use_wandb:
         artifact_pth = wandb.Artifact(model_name.replace(" ", "-") + "_model", type='model')
@@ -103,4 +103,4 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
 
 
 if __name__ == "__main__":
-    train(model_name="test", num_epochs=2)
+    train(model_name="test_20epoch", num_epochs=20, use_wandb=True)
