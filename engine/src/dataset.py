@@ -4,7 +4,6 @@ import collections
 import torch
 from torch.utils.data import Dataset
 from PIL import Image
-from sklearn.preprocessing import LabelEncoder
 
 
 def rle_decode(mask_rle, shape):
@@ -37,9 +36,7 @@ class FashionDataset(Dataset):
         self.height = height
         self.width = width
         self.image_info = collections.defaultdict(dict)
-        label_encoder = LabelEncoder()
-        self.df['CategoryId'] = label_encoder.fit_transform(self.df["ClassId"].values) + 1
-        temp_df = self.df.groupby('ImageId')['EncodedPixels', 'CategoryId'].agg(lambda x: list(x)).reset_index()
+        temp_df = self.df.groupby('ImageId')['EncodedPixels', 'EncodedClass'].agg(lambda x: list(x)).reset_index()
         size_df = self.df.groupby('ImageId')['Height', 'Width'].mean().reset_index()
         temp_df = temp_df.merge(size_df, on='ImageId', how='left')
         for index, row in temp_df.iterrows():
@@ -49,7 +46,7 @@ class FashionDataset(Dataset):
             self.image_info[index]["image_path"] = image_path
             self.image_info[index]["width"] = self.width
             self.image_info[index]["height"] = self.height
-            self.image_info[index]["labels"] = row["CategoryId"]
+            self.image_info[index]["labels"] = row["EncodedClass"]
             self.image_info[index]["orig_height"] = row["Height"]
             self.image_info[index]["orig_width"] = row["Width"]
             self.image_info[index]["annotations"] = row["EncodedPixels"]
@@ -128,8 +125,13 @@ if __name__ == "__main__":
     import pandas as pd
     from torch.utils.data import DataLoader
     import matplotlib.pyplot as plt
+    from sklearn.preprocessing import LabelEncoder
 
     train = pd.read_csv("../data/train.csv")
+
+    label_encoder = LabelEncoder()
+    train['EncodedClass'] = label_encoder.fit_transform(train["ClassId"].values) + 1
+
     dataset = FashionDataset("../data/train", train, 256, 256)
     data_loader = DataLoader(
         dataset, batch_size=4, shuffle=True, num_workers=8,

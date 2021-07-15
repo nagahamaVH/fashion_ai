@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import DataLoader
 from dataset import FashionDataset
+from sklearn.preprocessing import LabelEncoder
 from utils import get_transform
 from engine import train_step, eval_step, Averager
 from fasterrcnn_model import get_instance_segmentation_model
@@ -24,12 +25,15 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
     valid_classes = class_values[class_values > 30].index.tolist()
     data = data.loc[data["ClassId"].isin(valid_classes), :].reset_index(drop=True)
 
+    label_encoder = LabelEncoder()
+    data['EncodedClass'] = label_encoder.fit_transform(data["ClassId"].values) + 1
+
     data_id = data.drop_duplicates(["ImageId"])
 
     if valid_size > 0:
         train_id, valid_id = train_test_split(
             data_id, test_size=valid_size, random_state=seed,
-            stratify=data_id["ClassId"])
+            stratify=data_id["EncodedClass"])
 
         train = data.loc[data["ImageId"].isin(train_id["ImageId"]), :].reset_index(drop=True)
         valid = data.loc[data["ImageId"].isin(valid_id["ImageId"]), :].reset_index(drop=True)
@@ -52,9 +56,9 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
         num_workers=num_workers,
         collate_fn=lambda x: tuple(zip(*x)))
 
-    labels = data["ClassId"].unique()
-    num_classes = len(labels) + 1
+    df_classes = data.loc[:, ["ClassId", "EncodedClass"]].drop_duplicates()
 
+    num_classes = df_classes.shape[0] + 1
     model = get_instance_segmentation_model(num_classes)
 
     if device is None:
@@ -90,8 +94,8 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
                 wandb.log({"train_loss": train_metrics["loss"]})
 
     torch.save(model, os.path.join("pretrained_models", model_name + ".pth"))
-    pd.DataFrame(labels).to_csv(os.path.join(
-        "pretrained_models", model_name + ".csv"), header=False, index=False)
+    pd.DataFrame(df_classes).to_csv(os.path.join(
+        "pretrained_models", model_name + ".csv"), index=False)
 
     if use_wandb:
         artifact_pth = wandb.Artifact(model_name.replace(" ", "-") + "_model", type='model')
@@ -103,4 +107,4 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
 
 
 if __name__ == "__main__":
-    train(model_name="test_20epoch", num_epochs=20, use_wandb=True)
+    train(model_name="test_20epoch", num_epochs=2, use_wandb=False)
