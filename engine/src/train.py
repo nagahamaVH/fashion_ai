@@ -12,7 +12,7 @@ from fasterrcnn_model import get_instance_segmentation_model
 
 def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
           device=None, num_workers=-1, use_wandb=False,
-          project_name="fashion", entity="nagahamavh"):
+          project_name="fashion_ai", entity="nagahamavh"):
     if use_wandb:
         wandb.init(project=project_name, entity=entity, name=model_name)
     if num_workers == -1:
