@@ -11,6 +11,9 @@ def predict(image, model_name, device=None):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     df_classes = pd.read_csv(os.path.join("pretrained_models", model_name + ".csv"))
+    dict_classes = {}
+    for i in range(df_classes.shape[0]):
+        dict_classes[df_classes.loc[i, "EncodedClass"]] = df_classes.loc[i, "ClassId"]
 
     model = get_instance_segmentation_model(df_classes.shape[0] + 1)
     model = torch.load(os.path.join("pretrained_models", model_name + ".pth"))
@@ -22,7 +25,9 @@ def predict(image, model_name, device=None):
         raw_info = model([T.ToTensor()(image).to(device)])[0]
 
     info["boxes"] = raw_info["boxes"].cpu().detach().numpy()
-    info["labels"] = raw_info["labels"].cpu().detach().numpy()
+    encoded_labels = raw_info["labels"].cpu().detach().numpy()
+    labels = [dict_classes.get(x, x) for x in encoded_labels]
+    info["labels"] = labels
     info["scores"] = raw_info["scores"].cpu().detach().numpy()
     info["masks"] = raw_info["masks"].cpu().detach().numpy()
 
@@ -43,5 +48,6 @@ if __name__ == "__main__":
     print(info)
 
     detected_image = Image.fromarray(info['masks'][0, 0] * 255)
+    print(info["masks"].shape)
     plt.imshow(detected_image)
     plt.show()
