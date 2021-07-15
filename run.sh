@@ -1,3 +1,5 @@
 #!/bin/bash
 
-docker-compose up
+docker-compose run -d db
+docker-compose run -d adminer
+docker-compose run engine

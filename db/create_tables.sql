@@ -13,7 +13,7 @@ CREATE TABLE "public"."images" (
   "local" text,
   "height" int,
   "width" int,
-  "group": text
+  "group" text
 );
 
 DROP TABLE IF EXISTS "public"."segmentation";

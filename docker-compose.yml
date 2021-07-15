@@ -53,3 +53,4 @@ services:
                 - db
         runtime: nvidia
         shm_size: 20GB
+        tty: true
