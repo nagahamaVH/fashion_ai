@@ -4,8 +4,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import DataLoader
-from dataset import FashionDataset
 from sklearn.preprocessing import LabelEncoder
+from dataset import FashionDataset
 from utils import get_transform
 from engine import train_step, eval_step, Averager
 from fasterrcnn_model import get_instance_segmentation_model
@@ -13,17 +13,17 @@ from fasterrcnn_model import get_instance_segmentation_model
 
 def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
           device=None, num_workers=-1, use_wandb=False,
-          project_name="fashion_ai", entity="nagahamavh"):
+          project_name="fashion_ai", entity="nagahamavh", use_tqdm=True):
     if use_wandb:
         wandb.init(project=project_name, entity=entity, name=model_name)
     if num_workers == -1:
         num_workers = os.cpu_count()
 
-    data = pd.read_csv("./data/train.csv")
-    # data = pd.read_csv("./data/train.csv", nrows=1000)
-    # class_values = data["ClassId"].value_counts()
-    # valid_classes = class_values[class_values > 30].index.tolist()
-    # data = data.loc[data["ClassId"].isin(valid_classes), :].reset_index(drop=True)
+    # data = pd.read_csv("./data/train.csv")
+    data = pd.read_csv("./data/train.csv", nrows=1000)
+    class_values = data["ClassId"].value_counts()
+    valid_classes = class_values[class_values > 30].index.tolist()
+    data = data.loc[data["ClassId"].isin(valid_classes), :].reset_index(drop=True)
 
     label_encoder = LabelEncoder()
     data['EncodedClass'] = label_encoder.fit_transform(data["ClassId"].values) + 1
@@ -73,17 +73,18 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
     for epoch in range(num_epochs):
         loss_hist.reset()
         train_metrics = train_step(
+            epoch,
             device,
             model,
             train_data_loader,
             optimizer,
             loss_hist,
-            use_tqdm=True)
+            use_tqdm=use_tqdm)
 
         if valid_size > 0:
             with torch.no_grad():
                 valid_metrics = eval_step(
-                    device, model, valid_data_loader, use_tqdm=True)
+                    epoch, device, model, valid_data_loader, use_tqdm=use_tqdm)
 
         if use_wandb:
             if valid_size > 0:
@@ -107,4 +108,4 @@ def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
 
 
 if __name__ == "__main__":
-    train(model_name="model_1", num_epochs=20, use_wandb=True)
+    train(model_name="model_1", num_epochs=2, batch_size=4, use_wandb=False, use_tqdm=False)

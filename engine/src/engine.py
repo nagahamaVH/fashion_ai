@@ -1,4 +1,4 @@
-from sentry_sdk.api import flush
+import numpy as np
 from tqdm import tqdm
 import torch
 import torchvision
@@ -28,14 +28,14 @@ class Averager:
         self.iterations = 0.0
 
 
-def train_step(device, model, dataloader, optimizer, loss_hist, use_tqdm=True):
+def train_step(epoch, device, model, dataloader, optimizer, loss_hist, use_tqdm=True):
     model.train()
 
     if use_tqdm:
         dataloader = tqdm(dataloader)
 
     loss_value = None
-    for i, (images, targets) in enumerate(dataloader):
+    for batch_idx, (images, targets) in enumerate(dataloader):
         images = list(torch.as_tensor(image, dtype=torch.float32).to(device) for image in images)
         targets = [{k: v.long().to(device) for k, v in t.items()} for t in targets]
         model = model.to(device)
@@ -48,6 +48,10 @@ def train_step(device, model, dataloader, optimizer, loss_hist, use_tqdm=True):
         optimizer.zero_grad()
         losses.backward()
         optimizer.step()
+
+        if not use_tqdm:
+            if batch_idx % np.ceil(len(dataloader) * 0.05).astype(int) == 0:
+                print('Train Epoch: {} [{:.0f}%]'.format(epoch + 1, batch_idx / len(dataloader) * 100.))
 
     stats = {"loss": loss_value}
 
@@ -67,7 +71,7 @@ def _get_iou_types(model):
 
 
 @torch.no_grad()
-def eval_step(device, model, dataloader, use_tqdm=True):
+def eval_step(epoch, device, model, dataloader, use_tqdm=True):
     model.eval()
 
     coco = get_coco_api_from_dataset(dataloader.dataset)
@@ -77,7 +81,7 @@ def eval_step(device, model, dataloader, use_tqdm=True):
     if use_tqdm:
         dataloader = tqdm(dataloader)
 
-    for i, (images, targets) in enumerate(dataloader):
+    for batch_idx, (images, targets) in enumerate(dataloader):
         images = list(torch.as_tensor(image, dtype=torch.float32).to(device) for image in images)
         model = model.to(device)
         outputs = model(images)
@@ -85,6 +89,10 @@ def eval_step(device, model, dataloader, use_tqdm=True):
         outputs = [{k: v.to(torch.device("cpu")) for k, v in t.items()} for t in outputs]
         res = {target["image_id"].item(): output for target, output in zip(targets, outputs)}
         coco_evaluator.update(res)
+
+        if not use_tqdm:
+            if batch_idx % np.ceil(len(dataloader) * 0.05).astype(int) == 0:
+                print('Validation Epoch: {} [{:.0f}%]'.format(epoch + 1, batch_idx / len(dataloader) * 100.))
 
     coco_evaluator.synchronize_between_processes()
     coco_evaluator.accumulate()
