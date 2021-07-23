@@ -19,10 +19,10 @@ CREATE TABLE "public"."images" (
 DROP TABLE IF EXISTS "public"."segmentation";
 CREATE TABLE "public"."segmentation" (
   "id" SERIAL PRIMARY KEY,
-  "img_id" int,
+  "img_id" int REFERENCES images (id),
   "encoded_pixels" text,
   "class_id" int,
-  "attribute_id" int
+  "attribute_id" text
 );
 
 DROP TABLE IF EXISTS "public"."categories";

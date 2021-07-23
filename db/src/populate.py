@@ -36,7 +36,16 @@ with open('./data/images_table.csv', 'r') as f:
     next(reader)
     for row in reader:
         cur.execute(
-            "INSERT INTO images (name, height, width, train_test) VALUES (%s, %s, %s, %s)", row)
+            "INSERT INTO images VALUES (%s, %s, %s, %s, %s)", row)
+conn.commit()
+
+# Segmentation
+with open('./data/segmentation_table.csv', 'r') as f:
+    reader = csv.reader(f)
+    next(reader)
+    for row in reader:
+        cur.execute(
+            "INSERT INTO segmentation (img_id, encoded_pixels, class_id, attribute_id) VALUES (%s, %s, %s, %s)", row)
 conn.commit()
 
 cur.close()

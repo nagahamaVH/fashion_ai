@@ -6,14 +6,18 @@ import pandas as pd
 train = pd.read_csv("./data/train.csv")
 images_table = train.drop(["EncodedPixels", "AttributesIds", "ClassId"], axis=1)
 images_table["Group"] = "train"
+images_table = images_table.drop_duplicates().reset_index(drop=True)
+images_table["Id"] = images_table.index.values + 1
+images_table = images_table.loc[:, ["Id", "ImageId", "Height", "Width", "Group"]]
 
 # Generating table attributes and categories as csv
 with open('./data/label_descriptions.json', 'r') as file:
     label_desc = json.load(file)
 
 # Generating table segmentation as csv
-segm_table = train.loc[:, ["ImageId",
-                           "EncodedPixels", "ClassId", "AttributesIds"]]
+segm_table = train.loc[:, ["ImageId", "EncodedPixels", "ClassId", "AttributesIds"]]
+segm_table = segm_table.merge(images_table[["Id", "ImageId"]], on="ImageId")
+segm_table = segm_table.loc[:, ["Id", "EncodedPixels", "ClassId", "AttributesIds"]]
 
 attributes_table = pd.DataFrame(label_desc["attributes"])
 categories_table = pd.DataFrame(label_desc["categories"])
