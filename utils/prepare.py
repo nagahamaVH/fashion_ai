@@ -4,7 +4,7 @@ import pandas as pd
 
 # Generating table images as csv
 train = pd.read_csv("./data/train.csv")
-images_table = train.drop(["EncodedPixels", "AttributesIds"], axis=1)
+images_table = train.drop(["EncodedPixels", "AttributesIds", "ClassId"], axis=1)
 images_table["Group"] = "train"
 
 # Generating table attributes and categories as csv

@@ -10,10 +10,10 @@ CREATE TABLE "public"."user" (
 DROP TABLE IF EXISTS "public"."images";
 CREATE TABLE "public"."images" (
   "id" SERIAL PRIMARY KEY,
-  "local" text,
+  "name" text,
   "height" int,
   "width" int,
-  "group" text
+  "train_test" text
 );
 
 DROP TABLE IF EXISTS "public"."segmentation";
@@ -29,7 +29,7 @@ DROP TABLE IF EXISTS "public"."categories";
 CREATE TABLE "public"."categories" (
   "id" SERIAL PRIMARY KEY,
   "name" text,
-  "supercategory" int,
+  "supercategory" text,
   "level" int
 );
 
@@ -37,6 +37,6 @@ DROP TABLE IF EXISTS "public"."attributes";
 CREATE TABLE "public"."attributes" (
   "id" SERIAL PRIMARY KEY,
   "name" text,
-  "supercategory" int,
+  "supercategory" text,
   "level" int
 );
