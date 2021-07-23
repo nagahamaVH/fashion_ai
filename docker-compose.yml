@@ -15,42 +15,27 @@ services:
                         max-file: "5"
                         max-size: "200k"
         volumes:
-                # - ./data/attributes_table.csv:app/attributes_table.csv:ro
-                # - ./data/categories_table.csv:app/categories_table.csv:ro
-                # - ./data/segmentation_table.csv:app/segmentation_table.csv:ro
-                - ./db/create_tables.sql:/docker-entrypoint-initdb.d/10-create_tables.sql
-                - ./db/populate.sql:/docker-entrypoint-initdb.d/30-populate.sql
+                - ./db/src/populate.py:/app/src/populate.py:ro
+                - ./data/attributes_table.csv:/app/data/attributes_table.csv:ro
+                - ./data/categories_table.csv:/app/data/categories_table.csv:ro
+                - ./data/images_table.csv:/app/data/images_table.csv:ro
+                - ./data/segmentation_table.csv:/app/data/segmentation_table.csv:ro
+                - ./db/sql/create_tables.sql:/docker-entrypoint-initdb.d/10-create_tables.sql
         ports:
                 - 5431:5432
-    
-    adminer:
-        image: adminer
-        restart: always
-        environment:
-                ADMINER_DEFAULT_DB_DRIVER: pgsql
-                ADMINER_DEFAULT_DB_NAME: "${DB_NAME}"
-        logging:
-                driver: "json-file"
-                options:
-                        max-file: "5"
-                        max-size: "200k"
-        ports:
-                - 8000:8080
-        depends_on:
-                - db
 
-    engine:
-        build: ./engine
-        env_file: wandb.env
-        volumes:
-                - ./engine/src:/app/src:ro
-                - ./engine/pretrained_models:/app/pretrained_models:rw
-                - ./data/train.csv:/app/data/train.csv:ro
-                - ./data/label_descriptions.json:/app/data/label_descriptions.json:ro
-                - ./data/train:/app/data/train:ro
-                - ./data/test:/app/data/test:ro
-        depends_on:
-                - db
-        runtime: nvidia
-        shm_size: 20GB
-        tty: true
+#     engine:
+#         build: ./engine
+#         env_file: wandb.env
+#         volumes:
+#                 - ./engine/src:/app/src:ro
+#                 - ./engine/pretrained_models:/app/pretrained_models:rw
+#                 - ./data/train.csv:/app/data/train.csv:ro
+#                 - ./data/label_descriptions.json:/app/data/label_descriptions.json:ro
+#                 - ./data/train:/app/data/train:ro
+#                 - ./data/test:/app/data/test:ro
+#         depends_on:
+#                 - db
+#         runtime: nvidia
+#         shm_size: 20GB
+#         tty: true

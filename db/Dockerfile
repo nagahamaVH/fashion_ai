@@ -1,24 +1,13 @@
-FROM postgres:alpine
+FROM postgres:latest
 
-WORKDIR /usr/src/app
-# ENV PG_CRON_VERSION=1.2.0
-# RUN wget -O pg_cron.tgz https://github.com/citusdata/pg_cron/archive/v$PG_CRON_VERSION.tar.gz
+RUN apt-get update
+RUN apt-get install python3 -y
+RUN apt-get install python3-pip -y
 
-# RUN apk update
-# RUN apk add build-base
-# RUN apk add ca-certificates
-# RUN apk add openssl 
-# RUN apk add tar
-# RUN apk add libpq
-# RUN apk add clang
-# RUN apk add llvm
+RUN apt-get install --reinstall libpq-dev -y
+WORKDIR /
+COPY requirements.txt /
+RUN pip3 install --default-timeout=100 -r requirements.txt
 
-# RUN tar xvzf pg_cron.tgz
-
-# WORKDIR pg_cron-$PG_CRON_VERSION
-# RUN sed -i.bak -e 's/-Werror//g' Makefile
-# RUN sed -i.bak -e 's/-Wno-implicit-fallthrough//g' Makefile
-# RUN make && make install
-
-# WORKDIR /usr/src/app
-# RUN rm -rf pg_cron.tgz && rm -rf pg_cron-*
+WORKDIR /app
+# CMD python3 ./src/populate.py

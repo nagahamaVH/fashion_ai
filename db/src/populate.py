@@ -2,13 +2,14 @@ import os
 import csv
 import psycopg2
 
+csv.field_size_limit(100000000)
 
-db_name = os.environ["DB_NAME"]
-db_user = os.environ["DB_USER"]
-db_psw = os.environ["DB_PSW"]
+db_name = os.environ["POSTGRES_DB"]
+db_user = os.environ["POSTGRES_USER"]
+db_psw = os.environ["POSTGRES_PASSWORD"]
 
 conn = psycopg2.connect(
-    "host=localhost dbname={} user={} password={} port=5431".format(
+    "host=localhost dbname={} user={} password={}".format(
         db_name, db_user, db_psw))
 cur = conn.cursor()
 

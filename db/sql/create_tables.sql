@@ -1,12 +1,3 @@
-DROP TABLE IF EXISTS "public"."user";
-CREATE TABLE "public"."user" (
-  "id" SERIAL PRIMARY KEY,
-  "name" text,
-  "login" text,
-  "password" text,
-  "created_at" timestamp DEFAULT (now())
-);
-
 DROP TABLE IF EXISTS "public"."images";
 CREATE TABLE "public"."images" (
   "id" SERIAL PRIMARY KEY,
