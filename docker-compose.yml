@@ -15,12 +15,13 @@ services:
                         max-file: "5"
                         max-size: "200k"
         volumes:
-                - ./db/src/populate.py:/app/src/populate.py:ro
                 - ./data/attributes_table.csv:/app/data/attributes_table.csv:ro
                 - ./data/categories_table.csv:/app/data/categories_table.csv:ro
                 - ./data/images_table.csv:/app/data/images_table.csv:ro
                 - ./data/segmentation_table.csv:/app/data/segmentation_table.csv:ro
-                - ./db/sql/create_tables.sql:/docker-entrypoint-initdb.d/10-create_tables.sql
+                - ./db/src/create_tables.sql:/docker-entrypoint-initdb.d/01-create_tables.sql
+                - ./db/src/populate.py:/app/src/populate.py
+                - ./db/src/populate.sh:/docker-entrypoint-initdb.d/02-populate.sh
         ports:
                 - 5431:5432
 
