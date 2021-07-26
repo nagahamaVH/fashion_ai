@@ -15,6 +15,7 @@ services:
                         max-file: "5"
                         max-size: "200k"
         volumes:
+                - ./data/train:/app/data/train
                 - ./data/attributes_table.csv:/app/data/attributes_table.csv:ro
                 - ./data/categories_table.csv:/app/data/categories_table.csv:ro
                 - ./data/images_table.csv:/app/data/images_table.csv:ro

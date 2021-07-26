@@ -19,7 +19,7 @@ with open('./data/categories_table.csv', 'r') as f:
     next(reader)
     for row in reader:
         cur.execute(
-            "INSERT INTO categories VALUES (%s, %s, %s, %s)", row)
+            "INSERT INTO categories VALUES (%s, %s, %s, %s, %s)", row)
 conn.commit()
 print("Categories table populated")
 
