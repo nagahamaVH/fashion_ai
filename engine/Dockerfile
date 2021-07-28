@@ -9,6 +9,9 @@ WORKDIR /
 COPY requirements.txt /
 RUN pip3 install --default-timeout=100 -r requirements.txt
 
+COPY ./download_fasterrcnn.py /
+RUN python3 download_fasterrcnn.py
+
 WORKDIR /app
 
 CMD python3 ./src/api.py
