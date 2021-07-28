@@ -1,5 +1,6 @@
 import base64
 import os
+import re
 from flask import request, Flask, jsonify
 from PIL import Image
 from train import train as train
@@ -65,7 +66,11 @@ def predict_api():
 
 @app.route("/get_models", methods=["GET"])
 def get_models():
-    all_files = os.listdir("./pretrained_models")    
+    all_files = os.listdir("./pretrained_models")
+    all_files = [re.sub(r'\.\w+$', '', string) for string in all_files]
+    models = list(set(all_files))
+
+    return jsonify(models)
 
 
 if __name__ == "__main__":
