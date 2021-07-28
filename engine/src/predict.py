@@ -22,16 +22,22 @@ def _predict(image, model_name, device=None):
     model.eval()
     model.to(device)
 
-    info = {}
+    info = {"boxes": [], "labels": [], "scores": [], "masks": []}
     with torch.no_grad():
         raw_info = model([T.ToTensor()(image).to(device)])[0]
 
-    info["boxes"] = raw_info["boxes"].cpu().detach().numpy()
+    raw_info["boxes"] = raw_info["boxes"].cpu().detach().numpy()
     encoded_labels = raw_info["labels"].cpu().detach().numpy()
     labels = [dict_classes.get(x, x) for x in encoded_labels]
-    info["labels"] = labels
-    info["scores"] = raw_info["scores"].cpu().detach().numpy()
-    info["masks"] = raw_info["masks"].cpu().detach().numpy() * 255
+    raw_info["labels"] = labels
+    raw_info["scores"] = raw_info["scores"].cpu().detach().numpy()
+    raw_info["masks"] = raw_info["masks"].cpu().detach().numpy() * 255
+    for i in range(len(raw_info["labels"])):
+        if raw_info["scores"][i] > 0.7:  # threshold
+            info["boxes"].append(raw_info["boxes"][i].tolist())
+            info["labels"].append(raw_info["labels"][i].tolist())
+            info["scores"].append(raw_info["scores"][i].tolist())
+            info["masks"].append(raw_info["masks"][i].tolist())
 
     return info
 

@@ -1,6 +1,9 @@
 import torchvision.transforms as T
 import seaborn as sns
-from PIL import ImageColor
+from PIL import Image, ImageColor
+import base64
+import io
+import numpy as np
 
 
 def get_transform(train):
@@ -20,3 +23,10 @@ def map_labels_colors(labels):
     for label, col in zip(labels, colors_hex):
         map_color[label] = ImageColor.getcolor(col, "RGB")
     return map_color
+
+
+def decode_image(string):
+    x = np.frombuffer(base64.b64decode(string), np.uint8)
+    image = Image.open(io.BytesIO(x)).convert('RGB')
+    image = np.asarray(image)
+    return image

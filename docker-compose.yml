@@ -26,18 +26,23 @@ services:
         ports:
                 - 5431:5432
 
-#     engine:
-#         build: ./engine
-#         env_file: wandb.env
-#         volumes:
-#                 - ./engine/src:/app/src:ro
-#                 - ./engine/pretrained_models:/app/pretrained_models:rw
-#                 - ./data/train.csv:/app/data/train.csv:ro
-#                 - ./data/label_descriptions.json:/app/data/label_descriptions.json:ro
-#                 - ./data/train:/app/data/train:ro
-#                 - ./data/test:/app/data/test:ro
-#         depends_on:
-#                 - db
-#         runtime: nvidia
-#         shm_size: 20GB
-#         tty: true
+    engine:
+        build: ./engine
+        env_file: wandb.env
+        volumes:
+                - ./engine/src:/app/src:ro
+                - ./engine/pretrained_models:/app/pretrained_models:rw
+                - ./data/train.csv:/app/data/train.csv:ro
+                - ./data/label_descriptions.json:/app/data/label_descriptions.json:ro
+                - ./data/train:/app/data/train:ro
+                - ./data/test:/app/data/test:ro
+                - ./engine/output:/app/output:rw
+        ports: 
+                - 5000:5000
+        expose: 
+                - 5000
+        depends_on:
+                - db
+        runtime: nvidia
+        shm_size: 20GB
+        tty: true

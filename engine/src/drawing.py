@@ -14,7 +14,7 @@ def draw_segm(image, info, mapped_color):
     segm_mask = np.zeros_like(image, np.uint8)
 
     for i in range(len(info["labels"])):
-        segm = np.uint8(info["masks"][i, 0])
+        segm = np.uint8(info["masks"][i][0])
         label = info["labels"][i]
 
         # Improving segmentation draw (comment this block to use every pixel)
@@ -45,17 +45,17 @@ if __name__ == "__main__":
     from predict import predict
     from utils import map_labels_colors
 
-    image_path = "../data/train/0a0f94b4e785bb2326dd1832303ce8de.jpg"
+    image_path = "../data/test/0afb6b28d4583e470c7d0c52268272a7.jpg"
     # image_path = "lixo.jpeg"
 
-    classes = pd.read_csv("./pretrained_models/test_20epoch.csv")
+    classes = pd.read_csv("./pretrained_models/model_batch4.csv")
     mapped_color = map_labels_colors(classes["ClassId"].values)
 
     image = Image.open(image_path).convert('RGB')
     image = image.resize((256, 256), resample=Image.BILINEAR)
     image = np.asarray(image)
 
-    info = predict(image, "test_20epoch")
+    info = predict(image, "model_batch4")
     proc_image = draw_segm(image, info, mapped_color)
     plt.imshow(proc_image)
     plt.show()

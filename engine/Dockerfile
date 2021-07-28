@@ -11,4 +11,4 @@ RUN pip3 install --default-timeout=100 -r requirements.txt
 
 WORKDIR /app
 
-CMD python3 ./src/train.py
+CMD python3 ./src/api.py

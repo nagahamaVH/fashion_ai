@@ -11,7 +11,7 @@ from engine import train_step, eval_step, Averager
 from fasterrcnn_model import get_instance_segmentation_model
 
 
-def train(model_name, num_epochs=100, batch_size=3, valid_size=0.2, seed=259,
+def train(model_name, num_epochs=10, batch_size=3, valid_size=0.2, seed=259,
           device=None, num_workers=-1, use_wandb=False,
           project_name="fashion_ai", entity="nagahamavh", use_tqdm=True):
     if use_wandb:
