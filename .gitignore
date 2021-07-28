@@ -1,3 +1,6 @@
 data
 wandb.env
 __pycache__
+.ipynb_checkpoints
+wandb
+engine/pretrained_models

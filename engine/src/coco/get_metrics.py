@@ -1,16 +1,19 @@
 import sys
 from io import StringIO
 import re
-import numpy as np
 
 
 def format_coco_summarize(text):
-    text = re.sub(r"(.*?)\n", "", text, count=1)  # clean first line (header)
     metrics = {}
     while text != "":
-        found = re.search(r" (.*?) = (-*\d.\d{3})\n", text)
-        metrics[found.group(1)] = np.float32(found.group(2))
-        text = re.sub(r"(.*?)\n", "", text, count=1)  # update text
+        metric_found = re.search(r"^IoU metric: (.*?)\n", text)
+        if metric_found is not None:
+            metric_name = metric_found.group(1)
+            text = re.sub(r"(.*?)\n", "", text, count=1)  # clean metric line
+            metric_found = None
+        found = re.search(r" (.*?) = (-*\d+.\d+)\n", text)
+        metrics[metric_name + " - " + found.group(1)] = float(found.group(2))
+        text = re.sub(r"(.*?)\n", "", text, count=1)  # update tex
 
     return metrics
 
@@ -24,3 +27,13 @@ def get_metrics(coco_evaluator):
     metrics = format_coco_summarize(raw_metrics)
 
     return metrics
+
+
+if __name__ == "__main__":
+    import json
+
+    with open("./report.txt", "r") as f:
+        text = f.read()
+    metrics = format_coco_summarize(text)
+    with open("./metrics.json", "w") as f:
+        json.dump(metrics, f, ensure_ascii=False)
